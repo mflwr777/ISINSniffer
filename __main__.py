@@ -41,7 +41,7 @@ def main():
 
     example_input = "MSFT, AAPL" if search_by == 1 else "Microsoft, Apple"
     user_input = input(f"Enter the values separated by commas (e.g., {example_input}): ")
-    values = user_input.split(',')
+    values = [value.strip() for value in user_input.split(',')]
     
     print(f"Fetching information for: {values}")
     stock_data = fetch_stock_data(search_by, values)
@@ -49,22 +49,32 @@ def main():
     if not stock_data.empty:
         print("Here are the results found:")
         print(stock_data)
-        row_choice = int(input("Enter the row number for the ISIN of the stock for a quote search: ")) - 1
-        if 0 <= row_choice < len(stock_data):
-            chosen_isin = stock_data.loc[row_choice, 'isin']
-            print(f"Fetching quote search for ISIN: {chosen_isin}")
-            quote_data = fetch_quote_search(chosen_isin)
-            
-            print("Quote search results:")
-            print("Articles:")
-            for article in quote_data["articles"]:
-                print(f"Description: {article['Description']}\nURL: {article['URL']}\n")
-            
-            print("Quotes:")
-            for quote in quote_data["quotes"]:
-                print(f"ID: {quote['id']}, Description: {quote['description']}, Symbol: {quote['symbol']}, Exchange: {quote['exchange']}, Country: {quote['flag']}, Type: {quote['type']}\n")
-        else:
-            print("Invalid row number.")
+        while True:
+            row_choice_input = input("Enter the row number for the ISIN of the stock for a quote search (starting from 0): ")
+            try:
+                row_choice = int(row_choice_input)
+                if 0 <= row_choice < len(stock_data):
+                    chosen_isin = stock_data.iloc[row_choice]['isin']
+                    print(f"Fetching quote search for ISIN: {chosen_isin}")
+                    quote_data = fetch_quote_search(chosen_isin)
+                    
+                    if quote_data != "Failed to fetch quote data.":
+                        print("Quote search results:")
+                        print("Articles:")
+                        for article in quote_data["articles"]:
+                            print(f"Description: {article['Description']}\nURL: {article['URL']}\n")
+                        
+                        print("Quotes:")
+                        for quote in quote_data["quotes"]:
+                            print(f"ID: {quote['id']}, Description: {quote['description']}, Symbol: {quote['symbol']}, Exchange: {quote['exchange']}, Country: {quote['flag']}, Type: {quote['type']}\n")
+                    else:
+                        print("Failed to fetch quote search results for the given ISIN.")
+                    
+                    break  # Successfully executed, exit loop
+                else:
+                    print("Invalid row number. Please enter a number within the displayed range, starting from 0.")
+            except ValueError:
+                print("Invalid input. Please enter a valid integer.")
     else:
         print("No results found for the given inputs.")
 
