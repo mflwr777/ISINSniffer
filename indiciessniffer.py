@@ -47,13 +47,13 @@ def main():
         print("Here are the results found:")
         print(index_data)
         while True:
-            row_choice_input = input("Enter the row number for the ISIN of the index for a quote search (starting from 0): ")
+            row_choice_input = input("Enter the row number for the full_name of the index for a quote search (starting from 0): ")
             try:
                 row_choice = int(row_choice_input)
                 if 0 <= row_choice < len(index_data):
-                    chosen_isin = index_data.iloc[row_choice]['isin']
-                    print(f"Fetching quote search for ISIN: {chosen_isin}")
-                    quote_data = fetch_quote_search(chosen_isin)
+                    column_selector = index_data.iloc[row_choice]['full_name']
+                    print(f"Fetching quote search for ISIN: {column_selector}")
+                    quote_data = fetch_quote_search(column_selector)
                     if quote_data != "Failed to fetch quote data.":
                         print("Quote search results:")
                         print("Articles:")
