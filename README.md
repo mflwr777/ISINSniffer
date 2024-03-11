@@ -2,7 +2,7 @@
 
 ISINSniffer is a simple console application that allows users to fetch stock information using either the stock symbol or company name. This tool uses the `investpy` library to search for stocks and retrieve their details from the financial markets.
 
-## Features
+## Features stocksniffer.py:
 
 - **Search by Symbol:** Quickly find stock information using the stock's ticker symbol (e.g., MSFT for Microsoft).
 - **Search by Name:** Look up stocks by the company's full name (e.g., Microsoft).
