@@ -18,15 +18,17 @@ def fetch_data(asset_type, search_by, values):
         search_func = investpy.search_commodities
     elif asset_type == 5:  # ETFs
         search_func = investpy.search_etfs
+    elif asset_type == 6:  # Bonds
+        search_func = investpy.search_bonds
     else:
         raise ValueError("Invalid asset type.")
 
     results = pd.DataFrame()
     for value in values:
         if search_by == 1:  # Symbol or Name
-            temp_df = search_func(by='symbol' if asset_type not in [3, 4, 5] else 'name', value=value.strip())
+            temp_df = search_func(by='symbol' if asset_type not in [3, 4, 5, 6] else 'name', value=value.strip())
         else:  # Name or Full Name
-            temp_df = search_func(by='name' if asset_type not in [3, 4, 5] else 'full_name', value=value.strip())
+            temp_df = search_func(by='name' if asset_type not in [3, 4, 5, 6] else 'full_name', value=value.strip())
 
         if not temp_df.empty:
             results = pd.concat([results, temp_df], ignore_index=True)
@@ -54,10 +56,10 @@ def fetch_quote_search(query):
 def main():
     print("Welcome to the Asset Information Fetcher!")
 
-    asset_type = input("Enter 1 for Stocks, 2 for Indices, 3 for Currency Crosses, 4 for Commodities, or 5 for ETFs: ")
-    while asset_type not in ['1', '2', '3', '4', '5']:
-        print("Invalid choice. Please enter 1, 2, 3, 4, or 5.")
-        asset_type = input("Enter 1 for Stocks, 2 for Indices, 3 for Currency Crosses, 4 for Commodities, or 5 for ETFs: ")
+    asset_type = input("Enter 1 for Stocks, 2 for Indices, 3 for Currency Crosses, 4 for Commodities, 5 for ETFs, or 6 for Bonds: ")
+    while asset_type not in ['1', '2', '3', '4', '5', '6']:
+        print("Invalid choice. Please enter 1, 2, 3, 4, 5, or 6.")
+        asset_type = input("Enter 1 for Stocks, 2 for Indices, 3 for Currency Crosses, 4 for Commodities, 5 for ETFs, or 6 for Bonds: ")
     asset_type = int(asset_type)
 
     if asset_type == 1:
@@ -72,9 +74,12 @@ def main():
     elif asset_type == 4:
         print("You have selected Commodities.")
         search_by_prompt = "Enter 1 to search by 'name' or 2 to search by 'full_name': "
-    else:
+    elif asset_type == 5:
         print("You have selected ETFs.")
         search_by_prompt = "Enter 1 to search by 'symbol' or 2 to search by 'name': "
+    else:
+        print("You have selected Bonds.")
+        search_by_prompt = "Enter 1 to search by 'name' or 2 to search by 'full_name': "
 
     search_by = input(search_by_prompt)
     while search_by not in ['1', '2']:
@@ -90,8 +95,10 @@ def main():
         example_input = "EUR/USD, GBP/USD" if search_by == 1 else "Euro / US Dollar, British Pound / US Dollar"
     elif asset_type == 4:
         example_input = "Gold, Silver" if search_by == 1 else "Gold Spot, Silver Spot"
-    else:
+    elif asset_type == 5:
         example_input = "SPY, VTI" if search_by == 1 else "SPDR S&P 500 ETF Trust, Vanguard Total Stock Market ETF"
+    else:
+        example_input = "U.S. 10Y, Germany 10Y" if search_by == 1 else "U.S. 10 Years Bond Yield, Germany 10 Years Bond Yield"
 
     user_input = input(f"Enter the values separated by commas (e.g., {example_input}): ")
     values = [value.strip() for value in user_input.split(',')]
@@ -117,8 +124,10 @@ def main():
                         query = data.iloc[row_choice - 1]['name']
                     elif asset_type == 4:  # Commodities
                         query = data.iloc[row_choice - 1]['name']
-                    else:  # ETFs
+                    elif asset_type == 5:  # ETFs
                         query = data.iloc[row_choice - 1]['symbol']
+                    else:  # Bonds
+                        query = data.iloc[row_choice - 1]['name']
 
                     print(f"Fetching quote search for: {query}")
                     quote_data = fetch_quote_search(query)
