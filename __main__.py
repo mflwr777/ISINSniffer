@@ -14,15 +14,19 @@ def fetch_data(asset_type, search_by, values):
         search_func = investpy.search_indices
     elif asset_type == 3:  # Currency Crosses
         search_func = investpy.search_currency_crosses
+    elif asset_type == 4:  # Commodities
+        search_func = investpy.search_commodities
+    elif asset_type == 5:  # ETFs
+        search_func = investpy.search_etfs
     else:
         raise ValueError("Invalid asset type.")
 
     results = pd.DataFrame()
     for value in values:
         if search_by == 1:  # Symbol or Name
-            temp_df = search_func(by='symbol' if asset_type != 3 else 'name', value=value.strip())
+            temp_df = search_func(by='symbol' if asset_type not in [3, 4, 5] else 'name', value=value.strip())
         else:  # Name or Full Name
-            temp_df = search_func(by='name' if asset_type != 3 else 'full_name', value=value.strip())
+            temp_df = search_func(by='name' if asset_type not in [3, 4, 5] else 'full_name', value=value.strip())
 
         if not temp_df.empty:
             results = pd.concat([results, temp_df], ignore_index=True)
@@ -50,10 +54,10 @@ def fetch_quote_search(query):
 def main():
     print("Welcome to the Asset Information Fetcher!")
 
-    asset_type = input("Enter 1 for Stocks, 2 for Indices, or 3 for Currency Crosses: ")
-    while asset_type not in ['1', '2', '3']:
-        print("Invalid choice. Please enter 1, 2, or 3.")
-        asset_type = input("Enter 1 for Stocks, 2 for Indices, or 3 for Currency Crosses: ")
+    asset_type = input("Enter 1 for Stocks, 2 for Indices, 3 for Currency Crosses, 4 for Commodities, or 5 for ETFs: ")
+    while asset_type not in ['1', '2', '3', '4', '5']:
+        print("Invalid choice. Please enter 1, 2, 3, 4, or 5.")
+        asset_type = input("Enter 1 for Stocks, 2 for Indices, 3 for Currency Crosses, 4 for Commodities, or 5 for ETFs: ")
     asset_type = int(asset_type)
 
     if asset_type == 1:
@@ -62,9 +66,15 @@ def main():
     elif asset_type == 2:
         print("You have selected Indices.")
         search_by_prompt = "Enter 1 to search by 'symbol' or 2 to search by 'name': "
-    else:
+    elif asset_type == 3:
         print("You have selected Currency Crosses.")
         search_by_prompt = "Enter 1 to search by 'name' or 2 to search by 'full_name': "
+    elif asset_type == 4:
+        print("You have selected Commodities.")
+        search_by_prompt = "Enter 1 to search by 'name' or 2 to search by 'full_name': "
+    else:
+        print("You have selected ETFs.")
+        search_by_prompt = "Enter 1 to search by 'symbol' or 2 to search by 'name': "
 
     search_by = input(search_by_prompt)
     while search_by not in ['1', '2']:
@@ -76,8 +86,12 @@ def main():
         example_input = "MSFT, AAPL" if search_by == 1 else "Microsoft, Apple"
     elif asset_type == 2:
         example_input = "^DJI, ^GSPC" if search_by == 1 else "Dow Jones Industrial Average, S&P 500"
-    else:
+    elif asset_type == 3:
         example_input = "EUR/USD, GBP/USD" if search_by == 1 else "Euro / US Dollar, British Pound / US Dollar"
+    elif asset_type == 4:
+        example_input = "Gold, Silver" if search_by == 1 else "Gold Spot, Silver Spot"
+    else:
+        example_input = "SPY, VTI" if search_by == 1 else "SPDR S&P 500 ETF Trust, Vanguard Total Stock Market ETF"
 
     user_input = input(f"Enter the values separated by commas (e.g., {example_input}): ")
     values = [value.strip() for value in user_input.split(',')]
@@ -99,8 +113,12 @@ def main():
                         query = data.iloc[row_choice - 1]['isin']
                     elif asset_type == 2:  # Indices
                         query = data.iloc[row_choice - 1]['full_name']
-                    else:  # Currency Crosses
+                    elif asset_type == 3:  # Currency Crosses
                         query = data.iloc[row_choice - 1]['name']
+                    elif asset_type == 4:  # Commodities
+                        query = data.iloc[row_choice - 1]['name']
+                    else:  # ETFs
+                        query = data.iloc[row_choice - 1]['symbol']
 
                     print(f"Fetching quote search for: {query}")
                     quote_data = fetch_quote_search(query)
